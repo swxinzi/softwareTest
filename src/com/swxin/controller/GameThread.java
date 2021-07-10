@@ -4,6 +4,7 @@ import com.swxin.element.ElementObj;
 import com.swxin.element.GameElement;
 import com.swxin.element.Play;
 import com.swxin.manager.ElementManager;
+import com.swxin.element.Enemy;
 
 import javax.swing.*;
 import java.util.List;
@@ -63,21 +64,71 @@ public class GameThread extends Thread{
         while (true) {
 
             Map<GameElement, List<ElementObj>> all = em.getGameElements();
-            //得到所有的key集合
-            for (GameElement ge : GameElement.values()) {
-                List<ElementObj> list = all.get(ge);
-                for (int i = 0; i < list.size(); i++) {
-                    //读取为基类
-                    ElementObj obj = list.get(i);
-                    //调用模板方法
-                    obj.model();
-                }
-            }
+            //游戏自动化
+            moveAndUpdate(all);
+            //碰撞方法
+            elementTouch();
             //休眠
             try {
                 sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * @说明 元素碰撞方法
+     */
+    private void elementTouch() {
+
+        List<ElementObj> enemy = em.getElementsByKey(GameElement.ENEMY);
+        List<ElementObj> playFile = em.getElementsByKey(GameElement.PLAYFILE);
+        List<ElementObj> plays = em.getElementsByKey(GameElement.PLAY);
+        for (int i = 0; i < enemy.size(); i++) {
+            //敌人和子弹碰撞
+            ElementObj e = enemy.get(i);
+            for (int j = 0; j < playFile.size(); j++) {
+                ElementObj f = playFile.get(j);
+                if (e.isTouch(f)) {
+                    e.setExist(false);
+                    f.setExist(false);
+                    break;
+                }
+            }
+            //敌人和玩家进行碰撞
+            for (int j = 0; j < plays.size(); j++) {
+                ElementObj p = plays.get(j);
+                if (e.isTouch(p)) {
+                    e.setExist(false);
+                    p.setExist(false);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 游戏自动化方法
+     */
+    public void moveAndUpdate(Map<GameElement, List<ElementObj>> all) {
+
+        //得到所有的key集合
+        for (GameElement ge : GameElement.values()) {
+            List<ElementObj> list = all.get(ge);
+            for (int i = list.size() - 1; i >= 0; i--) {
+                //读取为基类
+                ElementObj obj = list.get(i);
+                //判定是否已经死亡
+                if (!obj.isExist()) {
+                    //启动死亡方法
+                    obj.die();
+                    //除掉该元素
+                    list.remove(i);
+                    continue;
+                }
+                //调用模板方法
+                obj.model();
             }
         }
     }
@@ -99,7 +150,12 @@ public class GameThread extends Thread{
         ElementObj obj = new Play(100, 100, 50, 50, icon);
         //将对象放入到元素管理器中
         //em.getElementsByKey(GameElement.PLAY).add(obj);
-        //直接添加对象
+        //添加玩家
         em.addElement(obj, GameElement.PLAY);
+        //创建敌人
+        for (int i = 0; i < 10; i++) {
+            em.addElement(new Enemy().createElement(""),
+                    GameElement.ENEMY);
+        }
     }
 }

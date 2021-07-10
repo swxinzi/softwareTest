@@ -14,8 +14,12 @@ public abstract class ElementObj {
     private int w;
     private int h;
     private ImageIcon icon;
+    //生存状态 true代表存在 false代表死亡
+    private boolean exist = true;
+    //时间限定
+    private long gameTime = 0L;
 
-    public void ElementObj() {
+    public ElementObj() {
 
     }
 
@@ -52,11 +56,6 @@ public abstract class ElementObj {
     }
 
     /**
-     * @说明 移动方法 如果有需要移动的子类请重写这个方法
-     */
-    protected void move() { }
-
-    /**
      * @说明 模板模式
      */
     public final void model() {
@@ -69,12 +68,57 @@ public abstract class ElementObj {
         send();
     }
 
-    protected void send() {
+    /**
+     * @说明 移动方法 如果有需要移动的子类请重写这个方法
+     */
+    protected void move() { }
+
+    /**
+     * @说明 发射子弹方法
+     */
+    protected void send() { }
+
+    /**
+     * @说明 换装方法
+     * @param gameTime
+     */
+    protected void updateImage() { }
+
+    /**
+     * @说明 定义创建对象函数 子类需要重写这个方法
+     * @param str
+     * @return ElementObj
+     */
+    public ElementObj createElement(String str) {
+
+        return null;
+    }
+
+    /**
+     * @说明 死亡方法 子类可以对该方法进行重写
+     * 死亡也是一个对象
+     */
+    public void die() {
 
     }
 
-    protected void updateImage() {
+    /**
+     * @说明 返回对象的碰撞矩形对象 方便碰撞检测
+     * @return Rectangle
+     */
+    public Rectangle getRectangle() {
 
+        return new Rectangle(x, y, w, h);
+    }
+
+    /**
+     * @说明 碰撞方法
+     * @return boolean true代表有碰撞 false代表没有碰撞
+     */
+    public boolean isTouch(ElementObj obj) {
+
+        //返回碰撞结果
+        return this.getRectangle().intersects(obj.getRectangle());
     }
 
     public int getX() {
@@ -115,5 +159,13 @@ public abstract class ElementObj {
 
     public void setIcon(ImageIcon icon) {
         this.icon = icon;
+    }
+
+    public boolean isExist() {
+        return exist;
+    }
+
+    public void setExist(boolean exist) {
+        this.exist = exist;
     }
 }

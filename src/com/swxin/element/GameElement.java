@@ -10,6 +10,10 @@ public enum GameElement {
      * ENEMY  敌人
      * MAPS   地图
      * BOSS   大BOSS
+     * PLAYFILE  子弹
+     * DIE    死亡
+     * PROP   道具
      */
-    MAPS,BOSS,ENEMY,PLAY
+    MAPS,BOSS,ENEMY,PLAY,PLAYFILE,DIE,PROP;
 }
+

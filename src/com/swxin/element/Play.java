@@ -1,5 +1,6 @@
 package com.swxin.element;
 
+import com.swxin.manager.ElementManager;
 import com.swxin.manager.GameLoad;
 
 import javax.swing.*;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * @说明 玩家游戏类
  */
 public class Play extends ElementObj {
     //使用4属性代表上下左右  true代表移动    false代表不移动
@@ -19,6 +20,8 @@ public class Play extends ElementObj {
 
     //记录当前主角面向的方向 默认是向上
     private String fx = "up";
+    //攻击状态 true为攻击 false为停止攻击
+    private boolean attackType = false;
 
     /**
      * @param x    左上角x坐标
@@ -47,6 +50,7 @@ public class Play extends ElementObj {
     }
 
     /**
+     * @说明 键盘监听事件 控制坦克
      * @param bl  代表点击的类型，true代表按下，false代表松开
      * @param key 代表触发的键盘的code值
      */
@@ -83,6 +87,10 @@ public class Play extends ElementObj {
                     this.right = false;
                     this.down = true;
                     break;
+                case 32:
+                    //开启攻击状态
+                    this.attackType = true;
+                    break;
             }
         } else {
             switch (key) {
@@ -97,6 +105,10 @@ public class Play extends ElementObj {
                     break;
                 case 40:
                     this.down = false;
+                    break;
+                case 32:
+                    //关闭攻击状态
+                    this.attackType = false;
                     break;
             }
         }
@@ -139,6 +151,39 @@ public class Play extends ElementObj {
     @Override
     protected void send() {
 
+        //不是攻击状态，停止攻击
+        if (!this.attackType) {
+            return;
+        }
+        attackType = false;
+        //创建对象
+        ElementObj element = new PlayFile().createElement(this.toString());
+        //装入到集合中
+        ElementManager.getManager().addElement(element,GameElement.PLAYFILE);
+    }
 
+    @Override
+    public String toString() {
+
+        //调整子弹位置
+        int x = this.getX();
+        int y = this.getY();
+        switch (this.fx) {
+            case "up":
+                x += 20;
+                break;
+            case "down":
+                x += 20;
+                y += 40;
+                break;
+            case "left":
+                y += 20;
+                break;
+            case "right":
+                y += 20;
+                x += 40;
+                break;
+        }
+        return "x:" + x + ",y:" + y + ",f:" + this.fx;
     }
 }
